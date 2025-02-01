@@ -11,7 +11,8 @@ st.header("🤖J.A.R.V.I.S", divider=True)
 api_key = st.sidebar.text_input("API Key", type="password")
 if st.sidebar.button("Salvar"):
     st.sidebar.success('Chave salva com sucesso')
-    client = openai.OpenAI(api_key=api_key)
+
+client = openai.OpenAI(api_key=api_key)
 
 
 selecao_modelo =st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-3.5-turbo'])
