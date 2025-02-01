@@ -1,5 +1,4 @@
 pandas
 streamlit
 openai
-time
 matplotlib
