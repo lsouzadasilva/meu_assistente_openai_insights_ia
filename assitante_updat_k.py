@@ -9,7 +9,7 @@ st.set_page_config(layout="wide")
 st.header("🤖J.A.R.V.I.S", divider=True)
 
 api_key = st.sidebar.text_input("API Key", type="password")
-tab.success('Chave salva com sucesso')
+api_key.success('Chave salva com sucesso')
 client = openai.OpenAI(api_key=api_key)
 
 
