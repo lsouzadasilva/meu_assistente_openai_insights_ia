@@ -20,7 +20,7 @@ if st.session_state.api_key:
     client = openai.OpenAI(api_key=st.session_state.api_key)
 
 instruction = st.sidebar.text_input("Instrução:")
-selecao_modelo = st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-3.5-turbo','gpt-3.5-turbo-0125'])
+selecao_modelo = st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo','gpt-3.5-turbo-0125'])
 
 upload_file = st.sidebar.file_uploader("Escolha um arquivo CSV", type=["csv"])
 
