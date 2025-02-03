@@ -15,7 +15,7 @@ if st.sidebar.button("Salvar"):
 client = openai.OpenAI(api_key=api_key)
 
 
-selecao_modelo =st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-3.5-turbo'])
+selecao_modelo =st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
 
 pergunta = st.text_input("Perguntar ao arquivo:")
 
