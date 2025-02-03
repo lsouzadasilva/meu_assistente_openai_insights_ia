@@ -19,23 +19,20 @@ if api_key:
 if st.session_state.api_key:
     print("API key salva:", st.session_state.api_key)
 
-
 client = openai.OpenAI(api_key=api_key)
 
 instruction = st.sidebar.text_input("Instrução:")
 
-selecao_modelo =st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
+# Seleção do modelo
+selecao_modelo = st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-3.5-turbo','gpt-3.5-turbo-0125'])
 
-pergunta = st.text_input("Perguntar ao arquivo:")
-
+# Upload do arquivo CSV
 upload_file = st.sidebar.file_uploader("Escolha um arquivo CSV", type=["csv"])
-
 
 df = None
 if upload_file is not None:
     try:
         df = pd.read_csv(upload_file, sep=";", decimal=",")
-        df = df.drop(columns = "Unnamed: 0")
         df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
         df = df.sort_values("Date")
         st.write("### Dados do CSV")
@@ -43,9 +40,15 @@ if upload_file is not None:
     except Exception as e:
         st.error(f"Erro ao processar arquivo: {e}")
 
+# Estado para armazenar assistente e thread
+if "assistant_id" not in st.session_state:
+    st.session_state.assistant_id = None
+if "thread_id" not in st.session_state:
+    st.session_state.thread_id = None
+
 
 def criar_assistant():
-    """Cria um assistente no OpenAI."""
+    """Cria um assistente apenas uma vez e armazena seu ID."""
     file = client.files.create(
         file=upload_file, purpose="assistants"
     )
@@ -57,30 +60,34 @@ def criar_assistant():
         tool_resources={"code_interpreter": {"file_ids": [file.id]}},
         model=selecao_modelo
     )
-    return assistant
+    
+    st.session_state.assistant_id = assistant.id  # Armazena o ID do assistente
+    return assistant.id
 
 
 def criar_thread():
-    """Cria uma nova thread no OpenAI."""
+    """Cria uma thread apenas uma vez e armazena seu ID."""
     thread = client.beta.threads.create()
-    return thread
+    st.session_state.thread_id = thread.id  # Armazena o ID da thread
+    return thread.id
 
-def enviar_mensagem(thread, pergunta):
-    """Envia uma mensagem para a thread solicitando um gráfico caso seja pertinente."""
+
+def enviar_mensagem(pergunta):
+    """Envia uma mensagem para a thread existente."""
     mensagem = f"{pergunta} Se necessário, forneça uma visualização em formato de imagem."
     message = client.beta.threads.messages.create(
-        thread_id=thread.id,
+        thread_id=st.session_state.thread_id,
         content=[{"type": "text", "text": mensagem}],
         role='user'
     )
     return message
 
 
-def rodar_thread_assistant(thread, assistant):
-    """Executa a thread com o assistente."""
+def rodar_thread_assistant():
+    """Executa a thread com o assistente existente."""
     run = client.beta.threads.runs.create(
-        thread_id=thread.id,
-        assistant_id=assistant.id,
+        thread_id=st.session_state.thread_id,
+        assistant_id=st.session_state.assistant_id,
         instructions="O nome do usuário é Leandro Souza e ele é um usuário Premium."
     )
     return run
@@ -94,15 +101,14 @@ def aguarda_thread_rodar(run):
             thread_id=run.thread_id,
             run_id=run.id
         )
-        # st.write(run.status)
     return run
 
 
-def verifica_resposta(run, thread):
+def verifica_resposta(run):
     """Verifica a resposta do assistente."""
     if run.status == "completed":
         mensagens = client.beta.threads.messages.list(
-            thread_id=thread.id
+            thread_id=st.session_state.thread_id
         )
         mensagem = mensagens.data[0].content[0]
         if mensagem.type == 'text':
@@ -122,12 +128,20 @@ def verifica_resposta(run, thread):
         st.error(f"Erro: {run.status}")
 
 
-# Execução principal
-if st.button("Executar Análise") and df is not None:
-    assistant = criar_assistant()
-    thread = criar_thread()
-    enviar_mensagem(thread, pergunta)  # ✅ Enviar a pergunta do usuário para a thread
-    run = rodar_thread_assistant(thread, assistant)
-    run = aguarda_thread_rodar(run)
-    verifica_resposta(run, thread)
+# Criar assistente e thread apenas uma vez
+if st.button("Iniciar Assistente") and upload_file is not None:
+    if st.session_state.assistant_id is None:
+        st.session_state.assistant_id = criar_assistant()
+    
+    if st.session_state.thread_id is None:
+        st.session_state.thread_id = criar_thread()
 
+    st.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
+
+# Permitir que o usuário faça perguntas sem recriar assistente ou thread
+pergunta = st.text_input("Perguntar ao arquivo:")
+if st.button("Enviar Pergunta") and pergunta and st.session_state.assistant_id and st.session_state.thread_id:
+    enviar_mensagem(pergunta)
+    run = rodar_thread_assistant()
+    run = aguarda_thread_rodar(run)
+    verifica_resposta(run)
