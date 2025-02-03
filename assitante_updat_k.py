@@ -29,7 +29,6 @@ if upload_file is not None:
     try:
         df = pd.read_csv(upload_file, sep=";", decimal=",")
         df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
-        df = df.drop(columns=["Unnamed: 0"])
         df = df.sort_values("Date")
         st.write("### Dados do CSV")
         st.dataframe(df, use_container_width=True)
@@ -70,11 +69,12 @@ def enviar_mensagem(pergunta):
     )
 
 def rodar_thread_assistant():
-    return client.beta.threads.runs.create(
+    run = client.beta.threads.runs.create(
         thread_id=st.session_state.thread_id,
         assistant_id=st.session_state.assistant_id,
         instructions="O nome do usuário é Leandro Souza e ele é um usuário Premium."
     )
+    return aguarda_thread_rodar(run)
 
 def aguarda_thread_rodar(run):
     while run.status in ["queued", "in_progress", "cancelling"]:
@@ -87,19 +87,20 @@ def aguarda_thread_rodar(run):
 def verifica_resposta(run):
     if run.status == "completed":
         mensagens = client.beta.threads.messages.list(thread_id=st.session_state.thread_id)
-        mensagem = mensagens.data[0].content[0]
-        if mensagem.type == 'text':
-            st.write(mensagem.text.value)
-        elif mensagem.type == 'image_file':
-            file_id = mensagem.image_file.file_id
-            image_data = client.files.content(file_id)
-            with open(f'arquivos/{file_id}.png', 'wb') as f:
-                f.write(image_data.read())
-            img = mpimg.imread(f'arquivos/{file_id}.png')
-            fig, ax = plt.subplots()
-            ax.set_axis_off()
-            ax.imshow(img)
-            st.pyplot(fig)
+        for mensagem in mensagens.data:
+            for conteudo in mensagem.content:
+                if conteudo.type == 'text':
+                    st.write(conteudo.text.value)
+                elif conteudo.type == 'image_file':
+                    file_id = conteudo.image_file.file_id
+                    image_data = client.files.content(file_id)
+                    with open(f'arquivos/{file_id}.png', 'wb') as f:
+                        f.write(image_data.read())
+                    img = mpimg.imread(f'arquivos/{file_id}.png')
+                    fig, ax = plt.subplots()
+                    ax.set_axis_off()
+                    ax.imshow(img)
+                    st.pyplot(fig)
     else:
         st.error(f"Erro: {run.status}")
 
@@ -112,5 +113,4 @@ pergunta = st.text_input("Perguntar ao arquivo:")
 if st.button("Enviar Pergunta") and pergunta and st.session_state.assistant_id and st.session_state.thread_id:
     enviar_mensagem(pergunta)
     run = rodar_thread_assistant()
-    run = aguarda_thread_rodar(run)
     verifica_resposta(run)
