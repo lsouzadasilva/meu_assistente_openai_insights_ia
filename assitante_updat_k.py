@@ -8,9 +8,17 @@ import matplotlib.image as mpimg
 st.set_page_config(layout="wide")
 st.header("🤖J.A.R.V.I.S", divider=True)
 
+if 'api_key' not in st.session_state:
+    st.session_state.api_key = None
+
 api_key = st.sidebar.text_input("API Key", type="password")
-if st.sidebar.button("Salvar"):
+if api_key:
+    st.session_state.api_key = api_key
     st.sidebar.success('Chave salva com sucesso')
+
+if st.session_state.api_key:
+    print("API key salva:", st.session_state.api_key)
+
 
 client = openai.OpenAI(api_key=api_key)
 
