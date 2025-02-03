@@ -29,6 +29,7 @@ if upload_file is not None:
     try:
         df = pd.read_csv(upload_file, sep=";", decimal=",")
         df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
+        df = df.drop(columns=["Unnamed: 0"])
         df = df.sort_values("Date")
         st.write("### Dados do CSV")
         st.dataframe(df, use_container_width=True)
