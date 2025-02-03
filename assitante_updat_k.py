@@ -22,6 +22,7 @@ if st.session_state.api_key:
 
 client = openai.OpenAI(api_key=api_key)
 
+instruction = st.sidebar.text_input("Instrução:")
 
 selecao_modelo =st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
 
@@ -51,7 +52,7 @@ def criar_assistant():
     
     assistant = client.beta.assistants.create(
         name="Analista de Dados",
-        instructions="Você é um analista de dados. Utilize os dados fornecidos para análise de faturamento de 3 filiais.",
+        instructions=instruction,
         tools=[{"type": "code_interpreter"}],
         tool_resources={"code_interpreter": {"file_ids": [file.id]}},
         model=selecao_modelo
