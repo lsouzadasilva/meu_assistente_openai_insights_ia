@@ -24,6 +24,9 @@ selecao_modelo = st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mi
 
 upload_file = st.sidebar.file_uploader("Escolha um arquivo CSV", type=["csv"])
 
+st.sidebar.divider()
+st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
+
 df = None
 if upload_file is not None:
     try:
