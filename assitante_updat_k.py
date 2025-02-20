@@ -8,6 +8,16 @@ import matplotlib.image as mpimg
 st.set_page_config(layout="wide")
 st.header("🤖J.A.R.V.I.S", divider=True)
 
+# --- Ocult menus ---
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
+
 if 'api_key' not in st.session_state:
     st.session_state.api_key = None
 
