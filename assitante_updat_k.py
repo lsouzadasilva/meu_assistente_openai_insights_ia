@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 st.set_page_config(
-            layout="wide"
+            layout="wide",
             page_title="J.A.R.V.I.S",
             page_icon=":robot_face:")
 st.header("🤖J.A.R.V.I.S", divider=True)
