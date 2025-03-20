@@ -37,6 +37,20 @@ selecao_modelo = st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mi
 
 upload_file = st.sidebar.file_uploader("Escolha um arquivo CSV", type=["csv"])
 
+st.sidebar.markdown(
+    """
+    ## Bem-vindo ao J.A.R.V.I.S! 🤖
+    Esta aplicação permite interações com modelos de IA da OpenAI, proporcionando respostas inteligentes e contextualizadas para suas perguntas.
+
+    🔹 **Como funciona?**
+    
+    ✅ Insira sua chave da API OpenAI na aba lateral. \n
+    ✅ Preencha o campo "Instrução" para direcionar o assistente. \n
+    ✅ Escolha entre os modelos GPT-3.5-Turbo e GPT-4. \n
+    ✅ Faça o upload de um arquivo CSV para análise. \n
+    ✅ Digite sua pergunta no chat e obtenha insights baseados nos dados fornecidos. 
+    """
+)
 st.sidebar.divider()
 st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
 
