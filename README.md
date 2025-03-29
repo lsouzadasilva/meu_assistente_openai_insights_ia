@@ -31,7 +31,7 @@ Gere sua API Key
 
 Insira a chave no campo lateral da aplicação ao abrir
 
-#📄 Como funciona
+# 📄 Como funciona
 Faça upload de um arquivo CSV (separado por ; e decimal ,)
 
 Defina uma instrução personalizada para o assistente
@@ -56,9 +56,9 @@ Resposta: O mês de Julho registrou o maior faturamento de R$ 25.000,00.
 - Pandas
 - Matplotlib
 
-#👨‍🏫 Desenvolvido por
+# 👨‍🏫 Desenvolvido por
 Leandro Souza
 
-#⭐️ Licença
+# ⭐️ Licença
 Uso livre para fins pessoais, educacionais e de estudo.
 Contribuições são bem-vindas!
