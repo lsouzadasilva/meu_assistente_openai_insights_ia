@@ -18,7 +18,7 @@ Este projeto é uma aplicação interativa desenvolvida em **Python** com **Stre
 
 ### 1. Clone o repositório
 
-```bash
+bash
 git clone https://github.com/seu-usuario/jarvis-assistente.git
 cd jarvis-assistente
 
@@ -31,7 +31,7 @@ Gere sua API Key
 
 Insira a chave no campo lateral da aplicação ao abrir
 
-📄 Como funciona
+#📄 Como funciona
 Faça upload de um arquivo CSV (separado por ; e decimal ,)
 
 Defina uma instrução personalizada para o assistente
@@ -48,20 +48,17 @@ Pergunta: Qual foi o mês com maior faturamento?
 Resposta: O mês de Julho registrou o maior faturamento de R$ 25.000,00.
 (A resposta pode vir acompanhada de um gráfico.)
 
-🧑‍💻 Tecnologias
-Python
+#🧑‍💻 Tecnologias
 
-Streamlit
+- Python
+- Streamlit
+- OpenAI API
+- Pandas
+- Matplotlib
 
-OpenAI API
-
-Pandas
-
-Matplotlib
-
-👨‍🏫 Desenvolvido por
+#👨‍🏫 Desenvolvido por
 Leandro Souza
 
-⭐️ Licença
+#⭐️ Licença
 Uso livre para fins pessoais, educacionais e de estudo.
 Contribuições são bem-vindas!
