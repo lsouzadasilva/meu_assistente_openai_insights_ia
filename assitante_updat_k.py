@@ -20,6 +20,8 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
+st.sidebar.markdown("<h2 style='color: #A67C52;'>J.A.R.V.I.S 🤖</h2>", unsafe_allow_html=True)
+
 home, configuracoes = st.sidebar.tabs(['Home', 'Configurações'])
 
 with configuracoes:
