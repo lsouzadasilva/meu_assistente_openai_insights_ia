@@ -118,18 +118,10 @@ def aguarda_thread_rodar(run):
 def verifica_resposta(run):
     if run.status == "completed":
         mensagens = client.beta.threads.messages.list(thread_id=st.session_state.thread_id)
-
-        resposta_completa = ""
-        placeholder = st.empty()  # Criando um espaço para a resposta dinâmica
-
         for mensagem in mensagens.data:
             for conteudo in mensagem.content:
                 if conteudo.type == 'text':
-                    for char in conteudo.text.value:
-                        resposta_completa += char
-                        placeholder.markdown(resposta_completa + "▌")  # Atualiza com o cursor
-                        time.sleep(0.02)  # Simula o efeito de digitação
-                    placeholder.markdown(resposta_completa)  # Remove o cursor no final
+                    st.write(conteudo.text.value)
                 elif conteudo.type == 'image_file':
                     file_id = conteudo.image_file.file_id
                     image_data = client.files.content(file_id)
