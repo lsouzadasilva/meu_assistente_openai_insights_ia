@@ -9,7 +9,8 @@ st.set_page_config(
             layout="wide",
             page_title="J.A.R.V.I.S",
             page_icon=":robot_face:")
-st.header("🤖J.A.R.V.I.S", divider=True)
+st.markdown("<h1 style='text-align: center; color: #4B8BBE;'>Assistente de leitura CSV 🤖</h1>", unsafe_allow_html=True)
+st.divider()
 
 # --- Ocult menus ---
 hide_st_style = """
