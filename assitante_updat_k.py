@@ -20,39 +20,55 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
+home, configuracoes = st.sidebar.tabs(['Home', 'Configurações'])
 
-if 'api_key' not in st.session_state:
-    st.session_state.api_key = None
+with configuracoes:
+    def configuracoes():
+        if 'api_key' not in st.session_state:
+            st.session_state.api_key = None
 
-api_key = st.sidebar.text_input("API Key", type="password")
-if api_key:
-    st.session_state.api_key = api_key
-    st.sidebar.success('Chave salva com sucesso')
+        api_key = st.text_input("API Key", type="password")
+        
+        if api_key:
+            st.session_state.api_key = api_key
+            st.success('Chave salva com sucesso')
 
-if st.session_state.api_key:
-    client = openai.OpenAI(api_key=st.session_state.api_key)
+        # Inicializa `client` com None
+        client = None
 
-instruction = st.sidebar.text_input("Instrução:")
-selecao_modelo = st.sidebar.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo','gpt-3.5-turbo-0125'])
+        # Só cria `client` se houver uma chave API
+        if st.session_state.api_key:
+            client = openai.OpenAI(api_key=st.session_state.api_key)
 
-upload_file = st.sidebar.file_uploader("Escolha um arquivo CSV", type=["csv"])
+        instruction = st.text_input("Instrução:")
+        selecao_modelo = st.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
+        upload_file = st.file_uploader("Escolha um arquivo CSV", type=["csv"])
 
-st.sidebar.markdown(
-    """
-    ## Bem-vindo ao J.A.R.V.I.S! 🤖
-    Esta aplicação permite interações com modelos de IA da OpenAI, proporcionando respostas inteligentes e contextualizadas para suas perguntas.
+        return client, instruction, selecao_modelo, upload_file
 
-    🔹 **Como funciona?**
+
+    client, instruction, selecao_modelo, upload_file = configuracoes()
     
-    ✅ Insira sua chave da API OpenAI na aba lateral. \n
-    ✅ Preencha o campo "Instrução" para direcionar o assistente. \n
-    ✅ Escolha entre os modelos GPT-3.5-Turbo e GPT-4. \n
-    ✅ Faça o upload de um arquivo CSV para análise. \n
-    ✅ Digite sua pergunta no chat e obtenha insights baseados nos dados fornecidos. 
-    """
-)
-st.sidebar.divider()
-st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
+
+with home:
+    def home():
+        st.markdown(
+            """
+            ## Bem-vindo ao J.A.R.V.I.S! 🤖
+            Esta aplicação permite interações com modelos de IA da OpenAI, proporcionando respostas inteligentes e contextualizadas para suas perguntas.
+
+            🔹 **Como funciona?**
+            
+            ✅ Insira sua chave da API OpenAI na aba lateral. \n
+            ✅ Preencha o campo "Instrução" para direcionar o assistente. \n
+            ✅ Escolha entre os modelos GPT-3.5-Turbo e GPT-4. \n
+            ✅ Faça o upload de um arquivo CSV para análise. \n
+            ✅ Digite sua pergunta no chat e obtenha insights baseados nos dados fornecidos. 
+            """
+        )
+        st.sidebar.divider()
+        st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
+    home()
 
 df = None
 if upload_file is not None:
