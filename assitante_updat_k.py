@@ -81,7 +81,7 @@ if upload_file is not None:
         df = df.drop(columns=["Unnamed: 0"])
         df = df.sort_values("Date")
         st.write("### Dados do CSV")
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, use_container_width=True, hide_index=True)
     except Exception as e:
         st.error(f"Erro ao processar arquivo: {e}")
 
