@@ -62,7 +62,7 @@ with home:
 
             🔹 **Como funciona?**
             
-            ✅ Insira sua chave da API OpenAI na aba lateral. \n
+            ✅ Insira sua chave da API OpenAI na aba Configurações. \n
             ✅ Preencha o campo "Instrução" para direcionar o assistente. \n
             ✅ Escolha entre os modelos GPT-3.5-Turbo e GPT-4. \n
             ✅ Faça o upload de um arquivo CSV para análise. \n
