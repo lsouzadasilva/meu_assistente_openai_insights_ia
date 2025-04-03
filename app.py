@@ -4,12 +4,10 @@ import openai
 import time
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import os
 
 st.set_page_config(
-    page_title="J.A.R.V.I.S ASSISTANTS",
-    page_icon="🤖"
-)
+            page_title="J.A.R.V.I.S ASSISTANTS",
+            page_icon="🤖")
 st.markdown("<h1 style='text-align: center; color: #4B8BBE;'>Assistente de leitura CSV 🤖</h1>", unsafe_allow_html=True)
 st.divider()
 
@@ -26,70 +24,33 @@ st.sidebar.markdown("<h2 style='color: #A67C52;'>J.A.R.V.I.S 🤖</h2>", unsafe_
 
 home, configuracoes = st.sidebar.tabs(['Home', 'Configurações'])
 
-# Estado para armazenar API Key e outras variáveis globais
-if 'api_key' not in st.session_state:
-    st.session_state.api_key = None
-if "assistant_id" not in st.session_state:
-    st.session_state.assistant_id = None
-if "thread_id" not in st.session_state:
-    st.session_state.thread_id = None
-
-# Função para configuração da API
-def configuracoes():
-    api_key = st.text_input("API Key", type="password")
-    
-    if api_key:
-        st.session_state.api_key = api_key
-        st.success('Chave salva com sucesso')
-
-    # Inicializa `client` com None
-    client = None
-    if st.session_state.api_key:
-        client = openai.OpenAI(api_key=st.session_state.api_key)
-
-    instruction = st.text_input("Instrução:")
-    selecao_modelo = st.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
-    upload_file = st.file_uploader("Escolha um arquivo CSV", type=["csv"])
-
-    return client, instruction, selecao_modelo, upload_file
-
 with configuracoes:
-    client, instruction, selecao_modelo, upload_file = configuracoes()
+    def configuracoes():
+        if 'api_key' not in st.session_state:
+            st.session_state.api_key = None
 
-    if upload_file is not None:
-        if st.sidebar.button("Iniciar Assistente"):
-            st.session_state.assistant_id = criar_assistant()
-            st.session_state.thread_id = criar_thread()
-            st.sidebar.success("Assistente e Thread criados! Agora você pode fazer perguntas na aba Home.")
-    else:
-        st.sidebar.warning("Faça o upload de um arquivo CSV antes de iniciar o assistente.")
-
-# Função para criar o assistente na API OpenAI
-def criar_assistant():
-    if st.session_state.assistant_id is None and upload_file is not None:
-        file_path = f"temp_{upload_file.name}"
-        with open(file_path, "wb") as f:
-            f.write(upload_file.getbuffer())
+        api_key = st.text_input("API Key", type="password")
         
-        file = client.files.create(file=open(file_path, "rb"), purpose="assistants")
+        if api_key:
+            st.session_state.api_key = api_key
+            st.success('Chave salva com sucesso')
 
-        assistant = client.beta.assistants.create(
-            name="Analista de Dados",
-            instructions=instruction,
-            tools=[{"type": "code_interpreter"}],
-            tool_resources={"code_interpreter": {"file_ids": [file.id]}},
-            model=selecao_modelo
-        )
-        os.remove(file_path)  # Remove arquivo temporário
-        return assistant.id
-    return st.session_state.assistant_id
+        # Inicializa `client` com None
+        client = None
 
-# Função para criar um thread na API OpenAI
-def criar_thread():
-    if st.session_state.thread_id is None:
-        thread = client.beta.threads.create()
-        return thread.id
-    return st.session_state.thread_id
+        # Só cria `client` se houver uma chave API
+        if st.session_state.api_key:
+            client = openai.OpenAI(api_key=st.session_state.api_key)
+
+        instruction = st.text_input("Instrução:")
+        selecao_modelo = st.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
+        upload_file = st.file_uploader("Escolha um arquivo CSV", type=["csv"])
+
+        return client, instruction, selecao_modelo, upload_file
+
+
+    client, instruction, selecao_modelo, upload_file = configuracoes()
+    
 
 with home:
     def home():
@@ -123,7 +84,31 @@ if upload_file is not None:
     except Exception as e:
         st.error(f"Erro ao processar arquivo: {e}")
 
-# Função para enviar perguntas
+# Estado para armazenar assistente e thread
+if "assistant_id" not in st.session_state:
+    st.session_state.assistant_id = None
+if "thread_id" not in st.session_state:
+    st.session_state.thread_id = None
+
+def criar_assistant():
+    if st.session_state.assistant_id is None:
+        file = client.files.create(file=upload_file, purpose="assistants")
+        assistant = client.beta.assistants.create(
+            name="Analista de Dados",
+            instructions=instruction,
+            tools=[{"type": "code_interpreter"}],
+            tool_resources={"code_interpreter": {"file_ids": [file.id]}},
+            model=selecao_modelo
+        )
+        st.session_state.assistant_id = assistant.id
+    return st.session_state.assistant_id
+
+def criar_thread():
+    if st.session_state.thread_id is None:
+        thread = client.beta.threads.create()
+        st.session_state.thread_id = thread.id
+    return st.session_state.thread_id
+
 def enviar_mensagem(pergunta):
     mensagem = f"{pergunta} Se necessário, forneça uma visualização em formato de imagem."
     return client.beta.threads.messages.create(
@@ -132,7 +117,6 @@ def enviar_mensagem(pergunta):
         role='user'
     )
 
-# Função para rodar a thread
 def rodar_thread_assistant():
     run = client.beta.threads.runs.create(
         thread_id=st.session_state.thread_id,
@@ -141,7 +125,6 @@ def rodar_thread_assistant():
     )
     return aguarda_thread_rodar(run)
 
-# Aguarda resposta da thread
 def aguarda_thread_rodar(run):
     while run.status in ["queued", "in_progress", "cancelling"]:
         time.sleep(1)
@@ -150,7 +133,6 @@ def aguarda_thread_rodar(run):
         )
     return run
 
-# Verifica resposta e exibe na interface
 def verifica_resposta(run):
     if run.status == "completed":
         mensagens = client.beta.threads.messages.list(thread_id=st.session_state.thread_id)
@@ -160,7 +142,6 @@ def verifica_resposta(run):
                     st.write(conteudo.text.value)
                 elif conteudo.type == 'image_file':
                     file_id = conteudo.image_file.file_id
-                    os.makedirs("arquivos", exist_ok=True)
                     image_data = client.files.content(file_id)
                     with open(f'arquivos/{file_id}.png', 'wb') as f:
                         f.write(image_data.read())
@@ -172,7 +153,12 @@ def verifica_resposta(run):
     else:
         st.error(f"Erro: {run.status}")
 
-# Entrada de perguntas e envio ao assistente
+
+if st.button("Iniciar Assistente") and upload_file is not None:
+    criar_assistant()
+    criar_thread()
+    st.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
+
 pergunta = st.text_input("Perguntar ao arquivo:")
 if st.button("Enviar Pergunta") and pergunta and st.session_state.assistant_id and st.session_state.thread_id:
     enviar_mensagem(pergunta)
