@@ -6,18 +6,20 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 st.set_page_config(
-            page_title="J.A.R.V.I.S ASSISTANTS",
-            page_icon="🤖")
+    page_title="J.A.R.V.I.S ASSISTANTS",
+    page_icon="🤖"
+)
+
 st.markdown("<h1 style='text-align: center; color: #4B8BBE;'>Assistente de leitura CSV 🤖</h1>", unsafe_allow_html=True)
 st.divider()
 
-# --- Ocult menus ---
+# --- Ocultar menus ---
 hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
+    <style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+"""
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 st.sidebar.markdown("<h2 style='color: #A67C52;'>J.A.R.V.I.S 🤖</h2>", unsafe_allow_html=True)
@@ -25,59 +27,44 @@ st.sidebar.markdown("<h2 style='color: #A67C52;'>J.A.R.V.I.S 🤖</h2>", unsafe_
 home, configuracoes = st.sidebar.tabs(['Home', 'Configurações'])
 
 with configuracoes:
-    def configuracoes():
-        if 'api_key' not in st.session_state:
-            st.session_state.api_key = None
+    if 'api_key' not in st.session_state:
+        st.session_state.api_key = None
 
-        api_key = st.text_input("API Key", type="password")
-        
-        if api_key:
-            st.session_state.api_key = api_key
-            st.success('Chave salva com sucesso')
+    api_key = st.text_input("API Key", type="password")
+    if api_key:
+        st.session_state.api_key = api_key
+        st.success('Chave salva com sucesso')
 
-        # Inicializa `client` com None
-        client = None
+    client = None
+    if st.session_state.api_key:
+        client = openai.OpenAI(api_key=st.session_state.api_key)
 
-        # Só cria `client` se houver uma chave API
-        if st.session_state.api_key:
-            client = openai.OpenAI(api_key=st.session_state.api_key)
-
-        instruction = st.text_input("Instrução:")
-        selecao_modelo = st.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
-        upload_file = st.file_uploader("Escolha um arquivo CSV", type=["csv"])
-
-        return client, instruction, selecao_modelo, upload_file
-
-
-    client, instruction, selecao_modelo, upload_file = configuracoes()
-    
+    instruction = st.text_input("Instrução:")
+    selecao_modelo = st.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
+    upload_file = st.file_uploader("Escolha um arquivo CSV", type=["csv"])
 
 with home:
-    def home():
-        st.markdown(
-            """
-            ## Bem-vindo ao J.A.R.V.I.S! 🤖
-            Esta aplicação permite interações com modelos de IA da OpenAI, proporcionando respostas inteligentes e contextualizadas para suas perguntas.
+    st.markdown(
+        """
+        ## Bem-vindo ao J.A.R.V.I.S! 🤖
+        Esta aplicação permite interações com modelos de IA da OpenAI, proporcionando respostas inteligentes e contextualizadas para suas perguntas.
 
-            🔹 **Como funciona?**
-            
-            ✅ Insira sua chave da API OpenAI na aba Configurações. \n
-            ✅ Preencha o campo "Instrução" para direcionar o assistente. \n
-            ✅ Escolha entre os modelos GPT-3.5-Turbo e GPT-4. \n
-            ✅ Faça o upload de um arquivo CSV para análise. \n
-            ✅ Digite sua pergunta no chat e obtenha insights baseados nos dados fornecidos. 
-            """
-        )
-        st.sidebar.divider()
-        st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
-    home()
+        🔹 **Como funciona?**
+        
+        ✅ Insira sua chave da API OpenAI na aba Configurações.  
+        ✅ Preencha o campo "Instrução" para direcionar o assistente.  
+        ✅ Escolha entre os modelos GPT-3.5-Turbo e GPT-4.  
+        ✅ Faça o upload de um arquivo CSV para análise.  
+        ✅ Digite sua pergunta no chat e obtenha insights baseados nos dados fornecidos. 
+        """
+    )
 
 df = None
 if upload_file is not None:
     try:
         df = pd.read_csv(upload_file, sep=";", decimal=",")
         df["Date"] = pd.to_datetime(df["Date"], errors='coerce')
-        df = df.drop(columns=["Unnamed: 0"])
+        df = df.drop(columns=["Unnamed: 0"], errors='ignore')
         df = df.sort_values("Date")
         st.write("### Dados do CSV")
         st.dataframe(df, use_container_width=True, hide_index=True)
@@ -153,14 +140,16 @@ def verifica_resposta(run):
     else:
         st.error(f"Erro: {run.status}")
 
-
-if st.button("Iniciar Assistente") and upload_file is not None:
+if st.sidebar.button("Iniciar Assistente") and upload_file is not None:
     criar_assistant()
     criar_thread()
-    st.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
+    st.sidebar.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
 
 pergunta = st.text_input("Perguntar ao arquivo:")
 if st.button("Enviar Pergunta") and pergunta and st.session_state.assistant_id and st.session_state.thread_id:
     enviar_mensagem(pergunta)
     run = rodar_thread_assistant()
     verifica_resposta(run)
+
+st.sidebar.divider()
+st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
