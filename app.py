@@ -119,6 +119,11 @@ with configuracoes:
     selecao_modelo = st.selectbox("Escolha o modelo:", ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-3.5-turbo-0125'])
     upload_file = st.file_uploader("Escolha um arquivo CSV", type=["csv"])
 
+    if st.button("Iniciar Assistente") and upload_file is not None:
+        criar_assistant()
+        criar_thread()
+        st.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
+
 df = None
 if upload_file is not None:
     try:
