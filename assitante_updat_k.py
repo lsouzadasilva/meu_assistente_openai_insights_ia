@@ -8,7 +8,7 @@ import matplotlib.image as mpimg
 st.set_page_config(
             layout="wide",
             page_title="J.A.R.V.I.S",
-            page_icon=":robot_face:")
+            page_icon="🤖")
 st.markdown("<h1 style='text-align: center; color: #4B8BBE;'>Assistente de leitura CSV 🤖</h1>", unsafe_allow_html=True)
 st.divider()
 
