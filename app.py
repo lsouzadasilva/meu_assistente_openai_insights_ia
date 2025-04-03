@@ -140,10 +140,13 @@ def verifica_resposta(run):
     else:
         st.error(f"Erro: {run.status}")
 
-if st.sidebar.button("Iniciar Assistente") and upload_file is not None:
-    criar_assistant()
-    criar_thread()
-    st.sidebar.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
+
+with configuracoes:
+    if st.button("Iniciar Assistente") and upload_file is not None:
+        criar_assistant()
+        criar_thread()
+        st.sidebar.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
+
 
 pergunta = st.text_input("Perguntar ao arquivo:")
 if st.button("Enviar Pergunta") and pergunta and st.session_state.assistant_id and st.session_state.thread_id:
