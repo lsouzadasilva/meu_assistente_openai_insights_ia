@@ -145,7 +145,7 @@ with configuracoes:
     if st.button("Iniciar Assistente") and upload_file is not None:
         criar_assistant()
         criar_thread()
-        st.sidebar.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
+        st.success("Assistente e Thread criados! Agora você pode fazer perguntas.")
 
 
 pergunta = st.text_input("Perguntar ao arquivo:")
